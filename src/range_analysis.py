@@ -93,8 +93,8 @@ def main():
         high_name = note_number_to_name(high)
 
         print(f"Channel {channel + 1}:")
-        print(f"  Lowest : {low_name} ({low})")
         print(f"  Highest: {high_name} ({high})")
+        print(f"  Lowest : {low_name} ({low})")
 
 
 if __name__ == "__main__":

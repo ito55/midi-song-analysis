@@ -1,0 +1,16 @@
+# ------------------------------
+# Python virtual environment
+# ------------------------------
+.venv/
+
+# ------------------------------
+# Private music assets (copyrighted)
+# ------------------------------
+assets/private/
+
+# ------------------------------
+# Python cache / artifacts
+# ------------------------------
+__pycache__/
+*.pyc
+*.pyo

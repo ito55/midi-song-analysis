@@ -1,79 +1,100 @@
-import argparse
-from mido import MidiFile
+import sys
+import os
+from collections import defaultdict
 
-NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+import mido
+
+
+NOTE_NAME_CONVENTION = "MIDI note 60 = C4"
+
+
+NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F",
+              "F#", "G", "G#", "A", "A#", "B"]
 
 
 def note_number_to_name(note_number: int) -> str:
+    """
+    Convert MIDI note number to note name.
+    Convention: MIDI note 60 = C4
+    """
     octave = (note_number // 12) - 1
     name = NOTE_NAMES[note_number % 12]
     return f"{name}{octave}"
 
 
-def analyze_note_range(midi_path: str, channels: list[int]) -> dict:
-    mid = MidiFile(midi_path)
+def analyze_midi_range(midi_path: str) -> dict:
+    """
+    Analyze lowest and highest note per MIDI channel.
+    Returns:
+        {
+            channel: {
+                "lowest_note": int,
+                "highest_note": int
+            },
+            ...
+        }
+    """
+    mid = mido.MidiFile(midi_path)
 
-    notes_by_channel = {ch: [] for ch in channels}
+    channel_notes = defaultdict(list)
 
     for track in mid.tracks:
         for msg in track:
             if msg.type == "note_on" and msg.velocity > 0:
-                if msg.channel in notes_by_channel:
-                    notes_by_channel[msg.channel].append(msg.note)
+                channel_notes[msg.channel].append(msg.note)
 
-    result = {}
+    results = {}
 
-    for ch, notes in notes_by_channel.items():
+    for channel, notes in channel_notes.items():
         if not notes:
-            result[ch] = None
             continue
 
-        low = min(notes)
-        high = max(notes)
-
-        result[ch] = {
-            "lowest": {
-                "number": low,
-                "name": note_number_to_name(low),
-            },
-            "highest": {
-                "number": high,
-                "name": note_number_to_name(high),
-            },
+        results[channel] = {
+            "lowest_note": min(notes),
+            "highest_note": max(notes),
         }
 
-    return result
+    return results
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Analyze note ranges per MIDI channel."
-    )
-    parser.add_argument(
-        "midi_file",
-        help="Path to a MIDI file",
-    )
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python range_analysis.py <midi_file>")
+        sys.exit(1)
 
-    args = parser.parse_args()
+    midi_path = sys.argv[1]
 
-    # Default: analyze MIDI channels 1 and 2 (0-based: 0, 1)
-    channels = [0, 1]
+    if not os.path.isfile(midi_path):
+        print(f"Error: file not found: {midi_path}")
+        sys.exit(1)
 
-    ranges = analyze_note_range(args.midi_file, channels)
+    midi_name = os.path.basename(midi_path)
 
-    for ch, data in ranges.items():
-        print(f"Channel {ch + 1}:")
-        if data is None:
-            print("  No notes found")
-        else:
-            print(
-                f"  Lowest : {data['lowest']['name']} "
-                f"({data['lowest']['number']})"
-            )
-            print(
-                f"  Highest: {data['highest']['name']} "
-                f"({data['highest']['number']})"
-            )
+    try:
+        results = analyze_midi_range(midi_path)
+    except Exception as e:
+        print(f"Analysis failed: {e}")
+        sys.exit(1)
+
+    print(f"Analysis succeeded: {midi_name}")
+    print(f"Note name convention: {NOTE_NAME_CONVENTION}")
+    print()
+    print("Results:")
+
+    if not results:
+        print("No note data found.")
+        return
+
+    for channel in sorted(results.keys()):
+        low = results[channel]["lowest_note"]
+        high = results[channel]["highest_note"]
+
+        low_name = note_number_to_name(low)
+        high_name = note_number_to_name(high)
+
+        print(f"Channel {channel + 1}:")
+        print(f"  Lowest : {low_name} ({low})")
+        print(f"  Highest: {high_name} ({high})")
 
 
 if __name__ == "__main__":

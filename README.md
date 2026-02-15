@@ -75,6 +75,16 @@ Both MIDI note numbers and note names are intentionally included.
 
 ---
 
+### Assets
+
+This repository includes only non-copyrighted sample files.
+
+Purchased or copyrighted music data (e.g. MIDI, MusicXML)
+must be placed under `assets/private/`, which is excluded
+from version control via `.gitignore`.
+
+---
+
 ## Technology
 
 - Python

@@ -42,11 +42,11 @@ Note name convention: MIDI note 60 = C4
 
 Results:
 Channel 1:
-  Lowest : F4 (65)
   Highest: A#5 (82)
-Channel 2:
   Lowest : F4 (65)
+Channel 2:
   Highest: C6 (84)
+  Lowest : F4 (65)
 
 ```
 

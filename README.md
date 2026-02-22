@@ -1,12 +1,10 @@
-# midi-song-analysis
-
 A CLI tool for analyzing MIDI files to support band rehearsals and vocal performance preparation.
 
 ---
 
 ## Overview
 
-**midi-song-analysis** is a command-line tool designed to analyze MIDI files as songs, focusing on practical information useful for musicians.
+**midi-song-note-range-analyzer** is a command-line tool designed to analyze MIDI files as songs, focusing on practical information useful for musicians.
 
 The primary goal is to support:
 
